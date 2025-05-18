@@ -1,256 +1,118 @@
 import "./App.css";
-import { useEffect, useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import { useSelector, useDispatch } from "react-redux";
 import {
-  handleAddCam,
-  handleAddDua,
-  handleAddTao,
-  handleReduceCamSlice,
-  handleReduceDuaSlice,
-  handleReduceTaoSlice,
+  addToCart,
+  handleAddQuantity,
+  handleReduceQuantity,
+  handleTotalProduct,
+  handleRemoveItem,
 } from "./features/cart/cartSlice";
 
-function App() {
-  const [cam, setCam] = useState(false);
-  const [tao, setTao] = useState(false);
-  const [dua, setDua] = useState(false);
+const products = [
+  { id: "1", name: "Quả cam", price: 10000 },
+  { id: "2", name: "Quả táo", price: 15000 },
+  { id: "3", name: "Quả dứa", price: 20000 },
+];
 
-  const cart = useSelector((state) => state.cart);
-  const [quantityCam, quantityTao, quantityDua] = useSelector((state) => [
-    state.cart.quatityCam,
-    state.cart.quantityTao,
-    state.cart.quantityDua,
-  ]);
+function App() {
+  const listProduct = useSelector((state) => state.cart.listProduct);
+  const totalPayment = useSelector((state) => state.cart.totalPayment);
   const dispatch = useDispatch();
 
-  const [total, setTotal] = useState(0);
-
-  const camPrice = 10000;
-  const taoPrice = 20000;
-  const duaPrice = 30000;
-  useEffect(() => {
-    if (cam || tao || dua) {
-      setTotal(
-        quantityCam * camPrice + quantityTao * taoPrice + quantityDua * duaPrice
-      );
-    } else {
-      setTotal(0);
-    }
-  }, [quantityCam, quantityTao, quantityDua]);
-
-  // const totalPrice = total.toLocaleString("vi-VN", {
-  //   style: "currency",
-  //   currency: "VND",
-  // });
-  // const totalPriceNumber = total.toLocaleString("en-US", {
-  //   style: "currency",
-  //   currency: "USD",
-  // });
-
-  const handleAddTaoMore = () => {
-    dispatch(handleAddTao(1));
-  };
-  const handleAddCamMore = () => {
-    dispatch(handleAddCam(1));
-  };
-  const handleAddDuaMore = () => {
-    dispatch(handleAddDua(1));
-  };
-
-  const handleReduceCam = () => {
-    dispatch(handleReduceCamSlice(1));
-  };
-  const handleReduceTao = () => {
-    dispatch(handleReduceTaoSlice(1));
-  };
-  const handleReduceDua = () => {
-    dispatch(handleReduceDuaSlice(1));
-  };
-
-  const handleDeleteCam = () => {
-    setCam(false);
-    // setQuantityCam(0);
-  };
-
-  const handleDeleteTao = () => {
-    setTao(false);
-    // setQuantityTao(0);
-  };
-
-  const handleDeleteDua = () => {
-    setDua(false);
-    // setQuantityDua(0);
-  };
-
-  const handlePaySuccess = () => {
-    if (total > 0) {
-      toast.success(`thanh toán thành công với tổng số tiền là ${total}`, {
-        position: "top-right",
-        autoClose: 2000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-      });
-      setTotal(0);
-      setCam(false);
-      setTao(false);
-      setDua(false);
-      // setQuantityCam(0);
-      // setQuantityTao(0);
-      // setQuantityDua(0);
-    } else {
-      toast.error("Giỏ hàng trống", {
-        position: "top-right",
-        autoClose: 2000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-      });
-    }
-  };
+  const handleAddtoCart = (product) => {
+    dispatch(addToCart(product));
+    dispatch(handleTotalProduct());
+  }
 
   return (
     <>
       <ToastContainer />
-      <div className="App">
-        <h1 className="text-3xl font-bold underline text-red-600">
-          Tiệm tạp hoá trái cây
+      <div className="max-w-2xl mx-auto p-4">
+        <h1 className="text-2xl font-bold mb-4 text-center">
+          Danh sách sản phẩm
         </h1>
-        <div>
-          <div>
-            Quả cam
-            <button
-              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-              onClick={() => setCam(true)}
+        <div className="space-y-4">
+          {products.map((p) => (
+            <div
+              key={p.id}
+              className="flex justify-between items-center border p-4 rounded shadow-sm bg-white"
             >
-              Thêm vào giỏ hàng
-            </button>
-          </div>
-          <div>
-            Quả táo
-            <button
-              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-              onClick={() => setTao(true)}
-            >
-              Thêm vào giỏ hàng
-            </button>
-          </div>
-          <div>
-            Quả dưa hấu
-            <button
-              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-              onClick={() => setDua(true)}
-            >
-              Thêm vào giỏ hàng
-            </button>
-          </div>
+              <div className="text-lg">
+                {p.name} -{" "}
+                <span className="font-semibold text-green-600">
+                  {p.price.toLocaleString("vi-VN")} VNĐ
+                </span>
+              </div>
+              <button
+                onClick={() => handleAddtoCart(p)}
+                className="bg-blue-500 hover:bg-blue-700 text-white font-medium py-1 px-3 rounded"
+              >
+                Thêm
+              </button>
+            </div>
+          ))}
         </div>
-        <div>
-          <h2 className="text-2xl font-bold">Giỏ hàng</h2>
-          <ul>
-            {cam ? (
-              <li>
-                Quả cam
-                <span className="text-red-500">
-                  {" "}
-                  có bao nhiêu quả cam {quantityCam}
-                </span>
-                <span className="text-red-500"> giá {camPrice} VNĐ</span>
-                <button
-                  className="bg-blue-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
-                  onClick={handleAddCamMore}
-                >
-                  tăng thêm
-                </button>
-                <button
-                  className="bg-yellow-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
-                  onClick={handleReduceCam}
-                  disabled={quantityCam === 0}
-                >
-                  giảm bớt
-                </button>
-                <button
-                  className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
-                  onClick={handleDeleteCam}
-                >
-                  Xoá khỏi giỏ hàng
-                </button>
-              </li>
-            ) : null}
-            {tao ? (
-              <li>
-                Quả táo
-                <span className="text-red-500">
-                  {" "}
-                  có bao nhiêu quả táo {quantityTao}
-                </span>
-                <span className="text-red-500"> giá {taoPrice} VNĐ</span>
-                <button
-                  className="bg-blue-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
-                  onClick={handleAddTaoMore}
-                >
-                  tăng thêm
-                </button>
-                <button
-                  className="bg-yellow-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
-                  onClick={handleReduceTao}
-                  disabled={quantityTao === 0}
-                >
-                  giảm bớt
-                </button>
-                <button
-                  className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
-                  onClick={handleDeleteTao}
-                >
-                  Xoá khỏi giỏ hàng
-                </button>
-              </li>
-            ) : null}
-            {dua ? (
-              <li>
-                Quả dưa hấu
-                <span className="text-red-500">
-                  có bao nhiêu quả dưa hấu {quantityDua}
-                </span>
-                <span className="text-red-500"> giá {duaPrice} VNĐ</span>
-                <button
-                  className="bg-blue-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
-                  onClick={handleAddDuaMore}
-                >
-                  tăng thêm
-                </button>
-                <button
-                  className="bg-yellow-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
-                  onClick={handleReduceDua}
-                  disabled={quantityDua === 0}
-                >
-                  giảm bớt
-                </button>
-                <button
-                  className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
-                  onClick={handleDeleteDua}
-                >
-                  Xoá khỏi giỏ hàng
-                </button>
-              </li>
-            ) : null}
-          </ul>
-          <h3 className="text-xl font-bold">Tổng tiền: {total}</h3>
-          <button
-            className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
-            onClick={handlePaySuccess}
-          >
-            Thanh toán
-          </button>
-          <button className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
-            Huỷ
-          </button>
+
+        <h2 className="text-xl font-bold mt-8 mb-4 text-center">Giỏ hàng</h2>
+        <div className="space-y-4">
+          {listProduct.length === 0 ? (
+            <div className="text-center text-gray-500">
+              Chưa có sản phẩm nào.
+            </div>
+          ) : (
+            listProduct.map((item) => (
+              <div
+                key={item.id}
+                className="flex justify-between items-center border p-4 rounded shadow-sm bg-gray-50"
+              >
+                <div>
+                  {item.name} -{" "}
+                  <span className="text-green-600 font-medium">
+                    {item.price.toLocaleString("vi-VN")} VNĐ
+                  </span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <button
+                    onClick={() => dispatch(handleReduceQuantity(item.id))}
+                    className="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded"
+                  >
+                    -
+                  </button>
+                  <span className="px-2">{item.quantity}</span>
+                  <button
+                    onClick={() => dispatch(handleAddQuantity(item.id))}
+                    className="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded"
+                  >
+                    +
+                  </button>
+                </div>
+                <div className="text-lg font-semibold">
+                  <button
+                    className="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded"
+                    onClick={() => dispatch(handleRemoveItem(item.id))}
+                  >
+                    Xoá sản phẩm
+                  </button>
+                </div>
+              </div>
+            ))
+          )}
         </div>
+
+        {listProduct.length > 0 && (
+          <div className="mt-6 border-t pt-4 flex justify-between items-center">
+            <div className="text-lg font-semibold text-blue-600">
+              Tổng tiền: {totalPayment.toLocaleString("vi-VN")} VNĐ
+            </div>
+            <button
+              onClick={() => dispatch(handleTotalProduct())}
+              className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
+            >
+              Thanh toán
+            </button>
+          </div>
+        )}
       </div>
     </>
   );
